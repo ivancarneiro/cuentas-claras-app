@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../config/api_config.dart';
 import '../config/theme.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/google_signin_button.dart';
+import '../widgets/server_config_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,6 +30,19 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dns_outlined),
+            tooltip: 'Configurar servidor backend',
+            onPressed: () => ServerConfigDialog.show(context, onServerChanged: () {
+              setState(() {});
+            }),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -79,10 +94,37 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppTheme.expenseColor.withValues(alpha: 0.3)),
                         ),
-                        child: Text(
-                          auth.error!,
-                          style: const TextStyle(color: AppTheme.expenseColor, fontSize: 13),
-                          textAlign: TextAlign.center,
+                        child: Column(
+                          children: [
+                            Text(
+                              auth.error!,
+                              style: const TextStyle(color: AppTheme.expenseColor, fontSize: 13),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            InkWell(
+                              onTap: () => ServerConfigDialog.show(context, onServerChanged: () => setState(() {})),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.dns_outlined, size: 14, color: AppTheme.expenseColor),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Verificar servidor backend',
+                                      style: TextStyle(
+                                        color: AppTheme.expenseColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
@@ -238,8 +280,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
-              ],
-            ),
+
+              const SizedBox(height: 28),
+
+              // Indicador discreto del servidor configurado
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => ServerConfigDialog.show(context, onServerChanged: () => setState(() {})),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.dns_outlined, size: 13, color: AppTheme.grey500(context)),
+                      const SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          'Servidor: ${ApiConfig.baseUrl}',
+                          style: TextStyle(fontSize: 11, color: AppTheme.grey500(context)),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.edit_outlined, size: 11, color: AppTheme.grey500(context)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           ),
         ),
       ),

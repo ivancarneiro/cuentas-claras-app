@@ -14,7 +14,9 @@ import 'screens/home_screen.dart';
 import 'widgets/debug_overlay.dart';
 import 'widgets/update_dialog.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiConfig.loadCustomBaseUrl();
   runApp(const CuentasClarasApp());
 }
 

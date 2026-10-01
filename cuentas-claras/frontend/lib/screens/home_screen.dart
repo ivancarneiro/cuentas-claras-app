@@ -14,6 +14,7 @@ import 'household_screen.dart';
 import 'categories_screen.dart';
 import 'profile_screen.dart';
 import 'admin_users_screen.dart';
+import '../widgets/server_config_dialog.dart';
 import '../widgets/user_avatar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -119,6 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     context,
                     MaterialPageRoute(builder: (_) => const AdminUsersScreen()),
                   );
+                } else if (value == 'server') {
+                  ServerConfigDialog.show(context, onServerChanged: () => setState(() {}));
                 } else if (value == 'logout') {
                   auth.logout();
                 }
@@ -153,6 +156,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListTile(
                     leading: Icon(Icons.person_outline, size: 20),
                     title: Text('Mi Perfil'),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'server',
+                  child: ListTile(
+                    leading: Icon(Icons.dns_outlined, size: 20),
+                    title: Text('Servidor Backend'),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
                   ),
