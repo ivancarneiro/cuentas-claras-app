@@ -15,8 +15,9 @@ class Config:
     if db_url and db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
 
+    sqlite_path = "/tmp/cuentas_claras.db" if (os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")) else os.path.join(basedir, "cuentas_claras.db")
     SQLALCHEMY_DATABASE_URI = (
-        db_url or f"sqlite:///{os.path.join(basedir, 'cuentas_claras.db')}"
+        db_url or f"sqlite:///{sqlite_path}"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
