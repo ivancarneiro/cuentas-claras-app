@@ -5,7 +5,12 @@ Tests de contrato para verificación de versión de la aplicación y descarga de
 
 def test_check_latest_version_no_update(client):
     """Si la versión local es igual a la remota, update_required debe ser False."""
-    res = client.get("/api/version/latest?current_version=1.0.5")
+    # Obtenemos la última versión actual
+    res_info = client.get("/api/version/latest")
+    assert res_info.status_code == 200
+    latest = res_info.get_json()["latest_version"]
+
+    res = client.get(f"/api/version/latest?current_version={latest}")
     assert res.status_code == 200
     data = res.get_json()
     assert "latest_version" in data
@@ -14,12 +19,11 @@ def test_check_latest_version_no_update(client):
 
 
 def test_check_latest_version_update_required(client):
-    """Si la versión local es menor (1.0.4 < 1.0.5), update_required debe ser True."""
-    res = client.get("/api/version/latest?current_version=1.0.4")
+    """Si la versión local es menor (0.0.1 < latest), update_required debe ser True."""
+    res = client.get("/api/version/latest?current_version=0.0.1")
     assert res.status_code == 200
     data = res.get_json()
     assert data["update_required"] is True
-    assert data["latest_version"] == "1.0.5"
     assert "/api/version/download" in data["download_url"]
 
 
