@@ -92,6 +92,7 @@ def create_app(config_class=Config, logger=None):
     from app.routes.categories import categories_bp
     from app.routes.households import households_bp
     from app.routes.monthly import monthly_bp
+    from app.routes.notifications import notifications_bp
     from app.routes.savings import savings_bp
     from app.routes.transactions import transactions_bp
     from app.routes.version import version_bp
@@ -104,9 +105,10 @@ def create_app(config_class=Config, logger=None):
     app.register_blueprint(savings_bp, url_prefix="/api/savings")
     app.register_blueprint(households_bp, url_prefix="/api/households")
     app.register_blueprint(version_bp, url_prefix="/api/version")
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
 
     logger.info(
-        "Blueprints registrados: admin, auth, categories, transactions, monthly, savings, households, version"
+        "Blueprints registrados: admin, auth, categories, transactions, monthly, savings, households, version, notifications"
     )
 
 

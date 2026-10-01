@@ -10,6 +10,7 @@ from app.auth.permissions import (
 from app.models.category import Category
 from app.models.transaction import Transaction
 from app.routes.auth import login_required
+from app.services.notification_service import notify_household_members
 
 transactions_bp = Blueprint("transactions", __name__)
 logger = logging.getLogger("cuentasclaras.transactions")
@@ -142,6 +143,23 @@ def create_transaction():
         transaction.type,
         transaction.household_id,
     )
+
+    if transaction.household_id:
+        actor_name = user.name or "Un integrante"
+        tipo_str = "un gasto" if transaction.type == "expense" else "un ingreso"
+        cat_name = cat.name if cat else "General"
+        curr = transaction.currency or "ARS"
+        title = f"Nuevo movimiento en {transaction.household.name if transaction.household else 'el grupo'}"
+        message = f"{actor_name} cargó {tipo_str} de {curr} {transaction.amount:,.2f} en {cat_name}"
+        notify_household_members(
+            household_id=transaction.household_id,
+            actor_id=user.id,
+            title=title,
+            message=message,
+            notification_type="transaction_created",
+            reference_id=transaction.id,
+        )
+
     return jsonify(transaction.to_dict()), 201
 
 
@@ -202,6 +220,21 @@ def update_transaction(transaction_id):
         transaction.type,
         transaction.household_id,
     )
+
+    if transaction.household_id:
+        actor_name = user.name or "Un integrante"
+        tipo_str = "el gasto" if transaction.type == "expense" else "el ingreso"
+        title = f"Movimiento modificado en {transaction.household.name if transaction.household else 'el grupo'}"
+        message = f"{actor_name} actualizó {tipo_str} ({transaction.currency} {transaction.amount:,.2f})"
+        notify_household_members(
+            household_id=transaction.household_id,
+            actor_id=user.id,
+            title=title,
+            message=message,
+            notification_type="transaction_updated",
+            reference_id=transaction.id,
+        )
+
     return jsonify(transaction.to_dict())
 
 
@@ -215,11 +248,15 @@ def delete_transaction(transaction_id):
     households = get_user_households(user.id)
     if transaction.household_id not in households:
         return jsonify({"error": "No tenés acceso a esta transacción"}), 403
-    # Guardar datos para el log antes de borrar
+    # Guardar datos para el log y la notificación antes de borrar
     t_id = transaction.id
     t_amount = transaction.amount
     t_user_id = transaction.user_id
     t_type = transaction.type
+    t_household_id = transaction.household_id
+    t_household_name = transaction.household.name if transaction.household else "el grupo"
+    t_currency = transaction.currency or "ARS"
+    t_desc = transaction.description or (transaction.category.name if transaction.category else "Movimiento")
 
     db.session.delete(transaction)
     db.session.commit()
@@ -230,4 +267,19 @@ def delete_transaction(transaction_id):
         t_amount,
         t_type,
     )
+
+    if t_household_id:
+        actor_name = user.name or "Un integrante"
+        tipo_str = "un gasto" if t_type == "expense" else "un ingreso"
+        title = f"Movimiento eliminado en {t_household_name}"
+        message = f"{actor_name} eliminó {tipo_str} de {t_currency} {t_amount:,.2f} ({t_desc})"
+        notify_household_members(
+            household_id=t_household_id,
+            actor_id=user.id,
+            title=title,
+            message=message,
+            notification_type="transaction_deleted",
+            reference_id=t_id,
+        )
+
     return jsonify({"message": "Transacción eliminada"})

@@ -420,6 +420,76 @@ class ApiService {
     return _handleResponse(res, source: 'toggleUserStatus') as Map<String, dynamic>;
   }
 
+  // ── Notifications & Device Tokens ───────────────────────────────
+
+  Future<Map<String, dynamic>> getNotifications({int page = 1, int limit = 50}) async {
+    final res = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/notifications?page=$page&limit=$limit'),
+      headers: _headers,
+    );
+    return _handleResponse(res, source: 'getNotifications') as Map<String, dynamic>;
+  }
+
+  Future<int> getUnreadNotificationCount() async {
+    try {
+      final res = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/notifications/unread-count'),
+        headers: _headers,
+      );
+      final data = _handleResponse(res, source: 'getUnreadNotificationCount') as Map<String, dynamic>;
+      return (data['unread_count'] as num?)?.toInt() ?? 0;
+    } catch (e) {
+      _log.warning('Error obteniendo conteo de notificaciones no leídas: $e', source: 'ApiService');
+      return 0;
+    }
+  }
+
+  Future<Map<String, dynamic>> markNotificationRead(int id) async {
+    final res = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/notifications/$id/read'),
+      headers: _headers,
+    );
+    return _handleResponse(res, source: 'markNotificationRead') as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> markAllNotificationsRead() async {
+    final res = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/notifications/read-all'),
+      headers: _headers,
+    );
+    return _handleResponse(res, source: 'markAllNotificationsRead') as Map<String, dynamic>;
+  }
+
+  Future<void> deleteNotification(int id) async {
+    final res = await http.delete(
+      Uri.parse('${ApiConfig.baseUrl}/notifications/$id'),
+      headers: _headers,
+    );
+    _handleResponse(res, source: 'deleteNotification');
+  }
+
+  Future<Map<String, dynamic>> registerDeviceToken(String token, {String platform = 'android'}) async {
+    final res = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/notifications/device-token'),
+      headers: _headers,
+      body: jsonEncode({'token': token, 'platform': platform}),
+    );
+    return _handleResponse(res, source: 'registerDeviceToken') as Map<String, dynamic>;
+  }
+
+  Future<void> unregisterDeviceToken({String? token}) async {
+    try {
+      final res = await http.delete(
+        Uri.parse('${ApiConfig.baseUrl}/notifications/device-token'),
+        headers: _headers,
+        body: token != null ? jsonEncode({'token': token}) : null,
+      );
+      _handleResponse(res, source: 'unregisterDeviceToken');
+    } catch (e) {
+      _log.warning('Error desregistrando device token: $e', source: 'ApiService');
+    }
+  }
+
   // ── App Version / Updates ───────────────────────────────────────
 
   Future<Map<String, dynamic>?> checkAppVersion(String currentVersion) async {

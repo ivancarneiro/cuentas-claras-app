@@ -14,6 +14,8 @@ import 'household_screen.dart';
 import 'categories_screen.dart';
 import 'profile_screen.dart';
 import 'admin_users_screen.dart';
+import '../providers/notification_provider.dart';
+import 'notifications_screen.dart';
 import '../widgets/server_config_dialog.dart';
 import '../widgets/user_avatar.dart';
 
@@ -39,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DataProvider>().refreshAll();
+      context.read<NotificationProvider>().startPolling();
     });
   }
 
@@ -87,6 +90,29 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          // Notifications Bell
+          Consumer<NotificationProvider>(
+            builder: (context, notifProvider, _) {
+              Widget bellIcon = const Icon(Icons.notifications_outlined);
+              if (notifProvider.unreadCount > 0) {
+                bellIcon = Badge(
+                  label: Text('${notifProvider.unreadCount}'),
+                  backgroundColor: AppTheme.expenseColor,
+                  child: const Icon(Icons.notifications_active_outlined),
+                );
+              }
+              return IconButton(
+                icon: bellIcon,
+                tooltip: 'Notificaciones',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                  );
+                },
+              );
+            },
+          ),
           // Categories
           IconButton(
             icon: const Icon(Icons.category_outlined),
@@ -123,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else if (value == 'server') {
                   ServerConfigDialog.show(context, onServerChanged: () => setState(() {}));
                 } else if (value == 'logout') {
+                  context.read<NotificationProvider>().clear();
                   auth.logout();
                 }
               },
@@ -262,8 +289,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           MaterialPageRoute(
                               builder: (_) => const AddTransactionScreen()),
                         ).then((changed) {
-                          if (changed == true) {
+                          if (changed == true && mounted) {
                             context.read<DataProvider>().refreshAll();
+                            context.read<NotificationProvider>().refreshUnreadCount();
                           }
                         });
                       },

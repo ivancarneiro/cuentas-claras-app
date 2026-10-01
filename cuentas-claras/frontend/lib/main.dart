@@ -8,6 +8,7 @@ import 'services/api_service.dart';
 import 'services/logger_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/data_provider.dart';
+import 'providers/notification_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -38,6 +39,7 @@ class CuentasClarasApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: loggerService),
         ChangeNotifierProvider(create: (_) => AuthProvider(apiService, logger: loggerService)),
         ChangeNotifierProvider(create: (_) => DataProvider(apiService)),
+        ChangeNotifierProvider(create: (_) => NotificationProvider(api: apiService, logger: loggerService)),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: Consumer<ThemeProvider>(
