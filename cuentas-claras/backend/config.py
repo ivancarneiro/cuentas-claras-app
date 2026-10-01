@@ -9,9 +9,7 @@ load_dotenv(os.path.join(basedir, ".env"))
 
 class Config:
     ENV = os.environ.get("ENV") or os.environ.get("FLASK_ENV", "production")
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    if not SECRET_KEY:
-        raise ValueError("No se ha configurado la variable de entorno SECRET_KEY.")
+    SECRET_KEY = os.environ.get("SECRET_KEY") or "cuentas-claras-secret-key-production-fallback"
 
     db_url = os.environ.get("DATABASE_URL")
     if db_url and db_url.startswith("postgres://"):
