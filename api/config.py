@@ -12,8 +12,11 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "cuentas-claras-secret-key-production-fallback"
 
     db_url = os.environ.get("DATABASE_URL")
-    if db_url and db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    if db_url:
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+            db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
     sqlite_path = "/tmp/cuentas_claras.db" if (os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")) else os.path.join(basedir, "cuentas_claras.db")
     SQLALCHEMY_DATABASE_URI = (
