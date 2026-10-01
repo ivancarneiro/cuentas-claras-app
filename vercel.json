@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "cuentas-claras/backend/**"
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
