@@ -2,13 +2,10 @@ import os
 import sys
 import traceback
 
-# Add current directory (api/) and backend directory to Python path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-backend_dir = os.path.abspath(os.path.join(current_dir, "..", "cuentas-claras", "backend"))
-
-for path in [current_dir, backend_dir]:
-    if path not in sys.path:
-        sys.path.insert(0, path)
+# Add backend directory to Python path
+backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "cuentas-claras", "backend"))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
 try:
     from app import create_app
