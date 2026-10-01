@@ -1,0 +1,45 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        working-directory: cuentas-claras/frontend
+        run: flutter pub get
+
+      - name: Build APK (Release)
+        working-directory: cuentas-claras/frontend
+        run: flutter build apk --release
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cuentas-claras-apk
+          path: cuentas-claras/frontend/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

@@ -1,0 +1,39 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "bcrypt>=4.2.0",
+    "ezodf>=0.3.2",
+    "flask>=3.1.2",
+    "flask-cors>=5.0.1",
+    "flask-limiter>=4.1.1",
+    "flask-sqlalchemy>=3.1.1",
+    "google-auth>=2.38.0",
+    "google-auth-httplib2>=0.2.0",
+    "lxml>=6.1.1",
+    "psycopg2-binary>=2.9.10",
+    "pyjwt>=2.10.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.32.0",
+]
+
+
+[dependency-groups]
+dev = [
+    "ruff==0.15.16",
+    "pytest>=9.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# Reglas seleccionadas: E/W (pycodestyle), F (Pyflakes), I (isort)
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true

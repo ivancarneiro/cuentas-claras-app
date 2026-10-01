@@ -1,0 +1,80 @@
+# Especificaciones de Spec-Driven Development (SDD)
+# Las carpetas .specify/ y specs/ SÍ se versionan bajo SDD.
+# Sin embargo, evitamos subir comandos o configuraciones locales del agente de IA que contengan tokens.
+.gemini/
+
+# Archivos de entorno y secretos
+.env
+.env.*
+!.env.example
+google-id_cuentasClaras-web.txt
+client_secret_*.json
+*.zip
+
+# Python y entornos virtuales
+**/venv/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+instance/
+**/instance/
+*.db
+*.sqlite
+.Python
+env/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Flutter / Dart (para redundancia en raíz, aunque estén en subcarpetas)
+**/.dart_tool/
+**/.packages
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/generated_bindings.g.dart
+
+# Archivos de oficina y diseño local
+*.ods
+*.xlsx
+*.xls
+*.csv
+*.pdf
+CUENTAS_CLARAS_html/
+
+
+# IDEs y Editores de texto
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Sistema operativo
+.DS_Store
+.directory
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Android / Binaries
+*.apk
+build-artifacts/
+
