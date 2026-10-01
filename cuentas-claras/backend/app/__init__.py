@@ -112,8 +112,22 @@ def create_app(config_class=Config, logger=None):
     )
 
 
+    @app.route("/health")
     @app.route("/api/health")
     def health():
         return {"status": "ok", "app": "Cuentas Claras"}
+
+    # Middleware to ensure all /api routes match even if stripped by serverless router
+    class PrefixMiddleware:
+        def __init__(self, wsgi_app):
+            self.wsgi_app = wsgi_app
+
+        def __call__(self, environ, start_response):
+            path = environ.get("PATH_INFO", "")
+            if not path.startswith("/api") and path != "/" and path != "":
+                environ["PATH_INFO"] = "/api" + path
+            return self.wsgi_app(environ, start_response)
+
+    app.wsgi_app = PrefixMiddleware(app.wsgi_app)
 
     return app
