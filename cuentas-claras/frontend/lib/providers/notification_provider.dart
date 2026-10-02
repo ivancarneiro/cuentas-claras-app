@@ -3,20 +3,27 @@ import 'package:flutter/material.dart';
 import '../models/notification_item.dart';
 import '../services/api_service.dart';
 import '../services/logger_service.dart';
+import '../services/push_notification_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final ApiService _api;
   final LoggerService _log;
+  final PushNotificationService? _pushService;
 
   List<NotificationItem> _notifications = [];
   int _unreadCount = 0;
   bool _isLoading = false;
   String? _errorMessage;
   Timer? _pollTimer;
+  int? _lastNotifiedId;
 
-  NotificationProvider({required ApiService api, LoggerService? logger})
-      : _api = api,
-        _log = logger ?? LoggerService();
+  NotificationProvider({
+    required ApiService api,
+    LoggerService? logger,
+    PushNotificationService? pushService,
+  })  : _api = api,
+        _log = logger ?? LoggerService(),
+        _pushService = pushService;
 
   List<NotificationItem> get notifications => _notifications;
   int get unreadCount => _unreadCount;
@@ -42,11 +49,38 @@ class NotificationProvider extends ChangeNotifier {
     try {
       final count = await _api.getUnreadNotificationCount();
       if (_unreadCount != count) {
+        final previousCount = _unreadCount;
         _unreadCount = count;
         notifyListeners();
+
+        // Si llegaron nuevas notificaciones no leídas, mostrar notificación en el sistema Android/iOS
+        if (count > previousCount) {
+          await _triggerLatestSystemNotification();
+        }
       }
     } catch (e) {
       _log.warning('Error refrescando conteo de notificaciones: $e', source: 'NotificationProvider');
+    }
+  }
+
+  Future<void> _triggerLatestSystemNotification() async {
+    try {
+      final data = await _api.getNotifications(page: 1, limit: 1);
+      final rawList = data['notifications'] as List<dynamic>? ?? [];
+      if (rawList.isNotEmpty) {
+        final latest = NotificationItem.fromJson(rawList.first as Map<String, dynamic>);
+        if (!latest.isRead && latest.id != _lastNotifiedId) {
+          _lastNotifiedId = latest.id;
+          await _pushService?.showLocalNotification(
+            id: latest.id,
+            title: latest.title,
+            body: latest.message,
+            payload: latest.type,
+          );
+        }
+      }
+    } catch (e) {
+      _log.warning('Error disparando notificación de sistema: $e', source: 'NotificationProvider');
     }
   }
 

@@ -6,6 +6,7 @@ import 'config/api_config.dart';
 import 'config/theme.dart';
 import 'services/api_service.dart';
 import 'services/logger_service.dart';
+import 'services/push_notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/data_provider.dart';
 import 'providers/notification_provider.dart';
@@ -28,6 +29,7 @@ class CuentasClarasApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final loggerService = LoggerService(maxEntries: 500);
     final apiService = ApiService(logger: loggerService);
+    final pushService = PushNotificationService(api: apiService, logger: loggerService);
 
     loggerService.info('🧪 Cuentas Claras App iniciando', source: 'main');
     loggerService.info('📡 Backend URL: ${ApiConfig.baseUrl}', source: 'main');
@@ -37,9 +39,10 @@ class CuentasClarasApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: loggerService),
+        Provider.value(value: pushService),
         ChangeNotifierProvider(create: (_) => AuthProvider(apiService, logger: loggerService)),
         ChangeNotifierProvider(create: (_) => DataProvider(apiService)),
-        ChangeNotifierProvider(create: (_) => NotificationProvider(api: apiService, logger: loggerService)),
+        ChangeNotifierProvider(create: (_) => NotificationProvider(api: apiService, logger: loggerService, pushService: pushService)),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -60,7 +63,7 @@ class CuentasClarasApp extends StatelessWidget {
               DefaultMaterialLocalizations.delegate,
               DefaultWidgetsLocalizations.delegate,
             ],
-            supportedLocales: [
+            supportedLocales: const [
               Locale('es', 'AR'),
               Locale('en', 'US'),
             ],
@@ -85,8 +88,16 @@ class _AuthGateState extends State<AuthGate> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initPushNotifications();
       _checkForUpdates();
     });
+  }
+
+  Future<void> _initPushNotifications() async {
+    try {
+      final pushService = context.read<PushNotificationService>();
+      await pushService.init();
+    } catch (_) {}
   }
 
   Future<void> _checkForUpdates() async {
@@ -130,4 +141,3 @@ class _AuthGateState extends State<AuthGate> {
     );
   }
 }
-

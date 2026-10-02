@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../models/notification_item.dart';
 import '../providers/notification_provider.dart';
+import '../services/push_notification_service.dart';
 import '../widgets/user_avatar.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -19,6 +20,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotificationProvider>().loadNotifications();
+      try {
+        context.read<PushNotificationService>().requestPermissions();
+      } catch (_) {}
     });
   }
 
@@ -95,6 +99,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Probar notificación en dispositivo',
+            icon: const Icon(Icons.notification_add_outlined, size: 20),
+            onPressed: () async {
+              try {
+                final pushService = context.read<PushNotificationService>();
+                await pushService.requestPermissions();
+                await pushService.showLocalNotification(
+                  id: 99999,
+                  title: '🔔 Cuentas Claras',
+                  body: 'Las notificaciones del sistema están funcionando correctamente.',
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Notificación de prueba enviada'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e'),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
           if (notifications.isNotEmpty && notifProvider.unreadCount > 0)
             TextButton.icon(
               onPressed: () => notifProvider.markAllAsRead(),
