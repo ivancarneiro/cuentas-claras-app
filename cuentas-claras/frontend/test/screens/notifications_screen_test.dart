@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:cuentas_claras_app/models/notification_item.dart';
 import 'package:cuentas_claras_app/providers/notification_provider.dart';
 import 'package:cuentas_claras_app/screens/notifications_screen.dart';
 import 'package:cuentas_claras_app/services/api_service.dart';

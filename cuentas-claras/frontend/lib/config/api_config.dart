@@ -62,7 +62,7 @@ class ApiConfig {
   /// Google OAuth Client ID for Web
   static const String googleClientId = '700638175128-ferq5uqn2ateaonkcls1pggv26einels.apps.googleusercontent.com';
 
-  static const String currentVersion = '1.0.9';
+  static const String currentVersion = '1.0.10';
 
   static const Duration timeout = Duration(seconds: 30);
 }
