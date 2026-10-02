@@ -42,7 +42,7 @@ class Config:
     # GitHub Releases / In-App Update
     GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     GITHUB_REPO = os.environ.get("GITHUB_REPO", "ivancarneiro/cuentas-claras-app")
-    LATEST_APP_VERSION = os.environ.get("LATEST_APP_VERSION", "1.0.7")
+    LATEST_APP_VERSION = os.environ.get("LATEST_APP_VERSION", "1.0.9")
 
     # Emails con permisos de propietario / admin
     APP_OWNER_EMAILS = [
