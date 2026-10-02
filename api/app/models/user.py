@@ -59,7 +59,7 @@ class User(db.Model):
             "photo_url": self.photo_url,
             "email_verified": self.email_verified,
             "is_active": self.is_active if hasattr(self, "is_active") and self.is_active is not None else True,
-            "is_app_owner": is_app_owner(self.email),
+            "is_app_owner": (self.id == 1) or is_app_owner(self.email),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -71,10 +71,21 @@ def is_app_owner(email: str | None) -> bool:
     clean = email.strip().lower()
     try:
         from config import Config
-        owner_emails = getattr(Config, "APP_OWNER_EMAILS", ["admin@cuentasclaras.app"])
+        owner_emails = getattr(Config, "APP_OWNER_EMAILS", [])
+        if clean in owner_emails:
+            return True
     except Exception:
-        owner_emails = ["admin@cuentasclaras.app"]
-    return clean in owner_emails
+        pass
+
+    try:
+        # If this email belongs to the primary app creator/first user (id=1)
+        first_user = User.query.order_by(User.id.asc()).first()
+        if first_user and first_user.email and first_user.email.strip().lower() == clean:
+            return True
+    except Exception:
+        pass
+
+    return False
 
 
 class AuthorizedEmail(db.Model):
