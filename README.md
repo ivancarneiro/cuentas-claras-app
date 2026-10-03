@@ -1,5 +1,6 @@
 # Cuentas Claras 💵
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ivancarneiro/cuentas-claras-app/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ivancarneiro/cuentas-claras-app)
+
 Aplicación multiplataforma moderna para la gestión de finanzas personales y familiares, diseñada desde la base para soportar la administración colaborativa de gastos compartidos en el hogar, control de ahorros y soporte multi-moneda (ARS / USD).
 
 * 📦 **Releases y APKs Android**: [GitHub Releases](https://github.com/ivancarneiro/cuentas-claras-app/releases)
